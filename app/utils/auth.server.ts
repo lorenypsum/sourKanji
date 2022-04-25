@@ -43,7 +43,7 @@ authenticator.use(
         throw new AuthorizationError("Passwords do not match");
 
       const existingUser = await db.user.findFirst({
-        where: { passwordHash: { not: null }, email },
+        where: { email },
         select: { id: true },
       });
       if (existingUser)
