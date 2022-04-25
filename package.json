@@ -1,0 +1,41 @@
+{
+  "name": "sourkanji",
+  "version": "1.0.0",
+  "dependencies": {
+    "@prisma/client": "^3.12.0",
+    "@remix-run/react": "^1.2.2",
+    "@remix-run/serve": "^1.2.2",
+    "bcryptjs": "^2.4.3",
+    "date-fns": "^2.28.0",
+    "dotenv": "^16.0.0",
+    "humanize-duration": "^3.27.1",
+    "parse-duration": "^1.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "remix": "^1.2.2",
+    "remix-auth": "^3.2.1",
+    "remix-auth-form": "^1.1.1",
+    "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^1.2.2",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/humanize-duration": "^3.27.1",
+    "@types/node": "^17.0.21",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "concurrently": "^7.1.0",
+    "prisma": "^3.12.0",
+    "tailwindcss": "^3.0.23",
+    "ts-node": "^10.5.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"remix dev\" \"tailwindcss -w -o ./app/tailwind.css\"",
+    "build": "tailwindcss --minify -o ./app/tailwind.css && remix build",
+    "start": "remix-serve build",
+    "postinstall": "prisma generate && remix setup node"
+  },
+  "prisma": {
+    "seed": "ts-node -O {\"module\":\"commonjs\",\"esModuleInterop\":true,\"moduleResolution\":\"node\"} prisma/seed.ts"
+  }
+}
