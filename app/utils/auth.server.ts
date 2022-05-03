@@ -1,28 +1,28 @@
 import { createCookieSessionStorage } from "@remix-run/node";
+import { compare as compareHash, hash } from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { hash, compare as compareHash } from "bcryptjs";
 import db from "./db.server";
 
 if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET)
   throw new Error("Missing AUTH_SECRET env");
 
-const authenticator = new Authenticator<string>(
-  createCookieSessionStorage({
-    cookie: {
-      name: "__session",
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      secure: process.env.NODE_ENV === "production",
-      secrets:
-        process.env.NODE_ENV === "production"
-          ? [process.env.AUTH_SECRET!]
-          : ["keyboard kitten"],
-    },
-  })
-);
+const sessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: "__session",
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    secure: process.env.NODE_ENV === "production",
+    secrets:
+      process.env.NODE_ENV === "production"
+        ? [process.env.AUTH_SECRET!]
+        : ["keyboard kitten"],
+  },
+});
+
+const authenticator = new Authenticator<string>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form, context }) => {
@@ -43,7 +43,7 @@ authenticator.use(
         throw new AuthorizationError("Passwords do not match");
 
       const existingUser = await db.user.findFirst({
-        where: { email },
+        where: { email: { equals: email } },
         select: { id: true },
       });
       if (existingUser)
@@ -54,7 +54,7 @@ authenticator.use(
     }
 
     const user = await db.user.findFirst({
-      where: { email },
+      where: { email: { equals: email } },
       select: { id: true, passwordHash: true },
     });
 

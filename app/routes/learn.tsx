@@ -1,16 +1,16 @@
 import {
   ActionFunction,
-  LoaderFunction,
   json,
+  LoaderFunction,
   redirect,
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import authenticator from "~/utils/auth.server";
-import db from "~/utils/db.server";
 import { add } from "date-fns";
 import parseDuration from "parse-duration";
-import ReviewDurationInput from "~/components/ReviewDurationInput";
 import KanjiInfo from "~/components/KanjiInfo";
+import ReviewDurationInput from "~/components/ReviewDurationInput";
+import authenticator from "~/utils/auth.server";
+import db from "~/utils/db.server";
 
 type LoaderData = {
   kanji: {
@@ -24,13 +24,13 @@ type LoaderData = {
   } | null;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const userId = await authenticator.isAuthenticated(args.request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
   const kanji = await db.kanji.findFirst({
-    where: { reviews: { none: { userId } } },
+    where: { reviews: { none: { userId: { equals: userId } } } },
     select: {
       id: true,
       kanji: true,
@@ -40,26 +40,26 @@ export const loader: LoaderFunction = async (args) => {
       stories: true,
       vocabulary: true,
     },
-    rejectOnNotFound: false,
   });
 
   return json<LoaderData>({ kanji });
 };
 
-export const action: ActionFunction = async (args) => {
-  const form = await args.request.formData();
+export const action: ActionFunction = async ({ request }) => {
+  const userId = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+
+  const form = await request.formData();
 
   const kanjiId = form.get("kanji_id");
   if (typeof kanjiId !== "string") throw new Error("invalid kanji ID");
 
   const duration = form.get("duration");
   if (typeof duration !== "string") throw new Error("invalid duration");
-  const reviewableAt = add(new Date(), {
-    seconds: parseDuration(duration) / 1000,
-  });
 
-  const userId = await authenticator.isAuthenticated(args.request, {
-    failureRedirect: "/login",
+  const reviewableAt = add(new Date(), {
+    seconds: parseDuration(duration, "s"),
   });
 
   await db.review.create({ data: { userId, kanjiId, reviewableAt } });
@@ -67,7 +67,7 @@ export const action: ActionFunction = async (args) => {
   return redirect("/learn");
 };
 
-export default function LearnPage() {
+const LearnPage: React.FC = () => {
   const loaderData = useLoaderData<LoaderData>();
 
   if (!loaderData.kanji) {
@@ -106,4 +106,6 @@ export default function LearnPage() {
       </a>
     </div>
   );
-}
+};
+
+export default LearnPage;

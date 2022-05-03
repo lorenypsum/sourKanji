@@ -1,18 +1,18 @@
 import {
   ActionFunction,
-  LoaderFunction,
   json,
+  LoaderFunction,
   redirect,
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import db from "~/utils/db.server";
 import { add, differenceInMilliseconds } from "date-fns";
-import { useState } from "react";
-import authenticator from "~/utils/auth.server";
 import humanizeDuration from "humanize-duration";
 import parseDuration from "parse-duration";
-import ReviewDurationInput from "~/components/ReviewDurationInput";
+import { useState } from "react";
 import KanjiInfo from "~/components/KanjiInfo";
+import ReviewDurationInput from "~/components/ReviewDurationInput";
+import authenticator from "~/utils/auth.server";
+import db from "~/utils/db.server";
 
 type LoaderData = {
   review: {
@@ -29,16 +29,16 @@ type LoaderData = {
   } | null;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const userId = await authenticator.isAuthenticated(args.request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
   const review = await db.review.findFirst({
     where: {
-      userId: userId,
+      userId: { equals: userId },
       reviewableAt: { lte: new Date() },
-      reviewed: false,
+      reviewed: { equals: false },
     },
     select: {
       id: true,
@@ -55,7 +55,6 @@ export const loader: LoaderFunction = async (args) => {
       createdAt: true,
     },
     orderBy: { reviewableAt: "asc" },
-    rejectOnNotFound: false,
   });
   if (!review) return json<LoaderData>({ review: null });
 
@@ -71,36 +70,34 @@ export const loader: LoaderFunction = async (args) => {
   });
 };
 
-export const action: ActionFunction = async (args) => {
-  const form = await args.request.formData();
+export const action: ActionFunction = async ({ request }) => {
+  const form = await request.formData();
 
   const reviewId = form.get("review_id");
   if (typeof reviewId !== "string") throw new Error("invalid review id");
 
   const duration = form.get("duration");
   if (typeof duration !== "string") throw new Error("invalid duration");
-  const reviewableAt = add(new Date(), {
-    seconds: parseDuration(duration) / 1000,
-  });
-
-  const userId = await authenticator.isAuthenticated(args.request, {
-    failureRedirect: "/login",
-  });
 
   await db.$transaction(async (db) => {
-    const review = await db.review.findFirst({
+    const userId = await authenticator.isAuthenticated(request, {
+      failureRedirect: "/login",
+    });
+    const { kanjiId } = await db.review.findFirst({
       where: {
         id: reviewId,
-        userId,
+        userId: { equals: userId },
         reviewableAt: { lte: new Date() },
-        reviewed: false,
+        reviewed: { equals: false },
       },
-      select: { kanjiId: true, createdAt: true },
+      select: { kanjiId: true },
       rejectOnNotFound: true,
     });
-    await db.review.create({
-      data: { userId, kanjiId: review.kanjiId, reviewableAt },
+    const reviewableAt = add(new Date(), {
+      seconds: parseDuration(duration, "s"),
     });
+
+    await db.review.create({ data: { userId, kanjiId, reviewableAt } });
     await db.review.update({
       where: { id: reviewId },
       data: { reviewed: true },
@@ -110,7 +107,7 @@ export const action: ActionFunction = async (args) => {
   return redirect("/review");
 };
 
-export default function LearnPage() {
+const ReviewPage: React.FC = () => {
   const loaderData = useLoaderData<LoaderData>();
 
   const [revealed, setRevealed] = useState(false);
@@ -170,4 +167,6 @@ export default function LearnPage() {
       </a>
     </div>
   );
-}
+};
+
+export default ReviewPage;

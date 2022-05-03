@@ -27,14 +27,14 @@ type LoaderData = {
   } | null;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const url = new URL(args.request.url);
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
   if (process.env.NODE_ENV === "production" && url.protocol === "http") {
     url.protocol = "https";
-    throw redirect(url.toString());
+    return redirect(url.toString());
   }
 
-  const userId = await authenticator.isAuthenticated(args.request);
+  const userId = await authenticator.isAuthenticated(request);
   if (!userId) return json<LoaderData>({ user: null });
 
   const user = await db.user.findUnique({
@@ -57,8 +57,9 @@ export const meta: MetaFunction = () => {
   };
 };
 
-export default function App() {
+const Root: React.FC = () => {
   const loaderData = useLoaderData<LoaderData>();
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -77,4 +78,6 @@ export default function App() {
       </body>
     </html>
   );
-}
+};
+
+export default Root;

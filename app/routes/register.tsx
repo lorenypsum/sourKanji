@@ -5,9 +5,9 @@ import authenticator from "~/utils/auth.server";
 
 type ActionData = { error?: string };
 
-export const action: ActionFunction = async (args) => {
+export const action: ActionFunction = async ({ request }) => {
   try {
-    await authenticator.authenticate("form", args.request, {
+    await authenticator.authenticate("form", request, {
       successRedirect: "/",
       throwOnError: true,
       context: { registration: true },
@@ -19,8 +19,9 @@ export const action: ActionFunction = async (args) => {
   }
 };
 
-export default function Register() {
+const RegisterPage: React.FC = () => {
   const actionData = useActionData<ActionData>();
+
   return (
     <main className="h-full flex flex-col justify-center items-center space-y-4">
       <span>Register</span>
@@ -54,4 +55,6 @@ export default function Register() {
       {actionData?.error && <p>{actionData.error}</p>}
     </main>
   );
-}
+};
+
+export default RegisterPage;

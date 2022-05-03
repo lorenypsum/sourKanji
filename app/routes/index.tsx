@@ -8,30 +8,24 @@ type LoaderData = {
   reviewCount: number;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const userId = await authenticator.isAuthenticated(args.request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
-
-  const learnCount = await db.kanji.aggregate({
-    where: { reviews: { none: { userId } } },
-    _count: true,
+  const learnCount = await db.kanji.count({
+    where: { reviews: { none: { userId: { equals: userId } } } },
   });
-  const reviewCount = await db.review.aggregate({
+  const reviewCount = await db.review.count({
     where: {
-      userId,
+      userId: { equals: userId },
       reviewableAt: { lte: new Date() },
-      reviewed: false,
+      reviewed: { equals: false },
     },
-    _count: true,
   });
-  return json<LoaderData>({
-    learnCount: learnCount._count,
-    reviewCount: reviewCount._count,
-  });
+  return json<LoaderData>({ learnCount, reviewCount });
 };
 
-export default function Index() {
+const IndexPage: React.FC = () => {
   const loaderData = useLoaderData<LoaderData>();
 
   return (
@@ -44,4 +38,6 @@ export default function Index() {
       </a>
     </main>
   );
-}
+};
+
+export default IndexPage;
