@@ -86,7 +86,7 @@ const LearnPage: React.FC = () => {
       <h1 className="font-bold text-7xl text-center">
         {loaderData.kanji.kanji}
       </h1>
-      <KanjiInfo kanji={loaderData.kanji} />
+      <KanjiInfo {...loaderData.kanji} />
       <form
         action="/learn"
         method="post"

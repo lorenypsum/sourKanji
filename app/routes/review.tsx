@@ -159,7 +159,7 @@ const ReviewPage: React.FC = () => {
               />
             </div>
           </form>
-          <KanjiInfo kanji={loaderData.review.kanji} />
+          <KanjiInfo {...loaderData.review.kanji} />
         </>
       )}
       <a href="/" className="border p-2 rounded-md text-center">
