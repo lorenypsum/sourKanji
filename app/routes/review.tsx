@@ -3,8 +3,8 @@ import {
   LoaderFunction,
   json,
   redirect,
-  useLoaderData,
-} from "remix";
+} from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import db from "~/utils/db.server";
 import { add, differenceInMilliseconds } from "date-fns";
 import { useState } from "react";

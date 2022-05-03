@@ -1,4 +1,5 @@
-import { ActionFunction, json, useActionData } from "remix";
+import { ActionFunction, json } from "@remix-run/node";
+import { useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 import authenticator from "~/utils/auth.server";
 

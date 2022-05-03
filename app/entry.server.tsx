@@ -1,6 +1,6 @@
-import "dotenv/config";
 import ReactDOMServer from "react-dom/server";
-import { RemixServer, EntryContext } from "remix";
+import { EntryContext } from "@remix-run/node";
+import { RemixServer } from "@remix-run/react";
 
 export default function handleRequest(
   request: Request,

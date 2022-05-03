@@ -1,17 +1,19 @@
 import {
-  Links,
   LinksFunction,
-  LiveReload,
   LoaderFunction,
-  Meta,
   MetaFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
+import {
+  Links,
+  LiveReload,
+  Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  json,
-  redirect,
   useLoaderData,
-} from "remix";
+} from "@remix-run/react";
 import db from "./utils/db.server";
 import authenticator from "./utils/auth.server";
 
