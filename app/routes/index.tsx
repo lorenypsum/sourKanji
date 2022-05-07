@@ -26,15 +26,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 const IndexPage: React.FC = () => {
-  const loaderData = useLoaderData<LoaderData>();
+  const { learnCount, reviewCount } = useLoaderData<LoaderData>();
 
   return (
     <main className="flex flex-col w-full h-full justify-center items-center space-y-4">
       <a href="/learn" className="border p-2 rounded-md text-center w-32">
-        Learn ({loaderData.learnCount})
+        Learn ({learnCount})
       </a>
       <a href="/review" className="border p-2 rounded-md text-center w-32">
-        Review ({loaderData.reviewCount})
+        Review ({reviewCount})
       </a>
     </main>
   );

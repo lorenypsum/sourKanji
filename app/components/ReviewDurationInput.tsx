@@ -7,6 +7,11 @@ type Props = {
   suggestedDuration: string;
 };
 
+/**
+ * This component displays an <input> element to contain a time duration in human-readable format.
+ *
+ * Additionally, it has controls to increase or decrease the duration.
+ */
 const ReviewDurationInput: React.FC<Props> = ({ name, suggestedDuration }) => {
   const [duration, setReviewDuration] = useState(suggestedDuration);
 
