@@ -41,6 +41,9 @@ export default function Index() {
       <a href="/review" className="border p-2 rounded-md text-center w-32">
         Review ({loaderData.reviewCount})
       </a>
+      <a href="/report" className="border p-2 rounded-md text-center w-32">
+        Report
+      </a>
     </main>
   );
 }
