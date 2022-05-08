@@ -147,6 +147,45 @@ const ReviewPage: React.FC = () => {
   return (
     <div className="flex flex-col items-stretch p-12 space-y-4">
       <h1 className="font-bold text-7xl text-center">{review.kanji.kanji}</h1>
+      <input
+          placeholder="Meaning"
+          name="Meaning"
+          type ="Meaning"
+          className="appearance-none block p-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        />
+        <button
+          className="border p-2 rounded-md"
+          onClick={() => setRevealed(true)}
+        >
+          Send
+        </button>
+       {revealed && (
+        <>
+          <form
+            action="/review"
+            method="post"
+            className="flex flex-col items-stretch md:flex-row md:items-center justify-between gap-2"
+          >
+            <input
+              type="hidden"
+              name="review_id"
+              value={loaderData.review.id}
+            />
+            <button type="submit" className="border p-2 rounded-md w-full">
+              Schedule review
+            </button>
+            <div className="w-full flex flex-row items-center justify-center md:justify-end gap-x-2">
+              <span>in</span>
+              <ReviewDurationInput
+                name="duration"
+                suggestedDuration={loaderData.review.suggestedReviewDuration}
+              />
+            </div>
+          </form>
+          <KanjiInfo kanji={loaderData.review.kanji} />
+        </>
+      )}
+
       {!revealed && (
         <button
           className="border p-2 rounded-md"
