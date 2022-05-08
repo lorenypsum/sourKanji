@@ -131,7 +131,10 @@ export const action: ActionFunction = async ({ request }) => {
 const ReviewPage: React.FC = () => {
   const review = useLoaderData<LoaderData>();
 
-  const [revealed, setRevealed] = useState(false);
+  // stores the guess that the user typed into the field
+  const [guess, setGuess] = useState("");
+  // stores whether the user submitted their guess
+  const [submitted, setSubmitted] = useState(false);
 
   if (!review) {
     return (
@@ -144,58 +147,37 @@ const ReviewPage: React.FC = () => {
     );
   }
 
+  // since the meanings are just one string separated by ", ", we split them
+  const meanings = review.kanji.meaning.split(", ");
+  // whether any of the meanings are equal to the user's guess
+  const guessedCorrectly =
+    submitted &&
+    meanings.some((meaning) => guess.toLowerCase() === meaning.toLowerCase());
+
   return (
     <div className="flex flex-col items-stretch p-12 space-y-4">
       <h1 className="font-bold text-7xl text-center">{review.kanji.kanji}</h1>
-      <input
-          placeholder="Meaning"
-          name="Meaning"
-          type ="Meaning"
-          className="appearance-none block p-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        <button
-          className="border p-2 rounded-md"
-          onClick={() => setRevealed(true)}
-        >
-          Send
-        </button>
-       {revealed && (
+      {!submitted && (
         <>
-          <form
-            action="/review"
-            method="post"
-            className="flex flex-col items-stretch md:flex-row md:items-center justify-between gap-2"
+          <input
+            autoFocus={true}
+            placeholder="Type the kanji meaning here."
+            className="appearance-none block p-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={(event) => setGuess(event.target.value)}
+          />
+          <button
+            className="border p-2 rounded-md"
+            onClick={() => setSubmitted(true)}
           >
-            <input
-              type="hidden"
-              name="review_id"
-              value={loaderData.review.id}
-            />
-            <button type="submit" className="border p-2 rounded-md w-full">
-              Schedule review
-            </button>
-            <div className="w-full flex flex-row items-center justify-center md:justify-end gap-x-2">
-              <span>in</span>
-              <ReviewDurationInput
-                name="duration"
-                suggestedDuration={loaderData.review.suggestedReviewDuration}
-              />
-            </div>
-          </form>
-          <KanjiInfo kanji={loaderData.review.kanji} />
+            Submit
+          </button>
         </>
       )}
-
-      {!revealed && (
-        <button
-          className="border p-2 rounded-md"
-          onClick={() => setRevealed(true)}
-        >
-          Reveal
-        </button>
-      )}
-      {revealed && (
+      {submitted && (
         <>
+          <h1 className="font-bold text-xl text-center">
+            {guessedCorrectly ? "Correct!" : "Incorrect..."}
+          </h1>
           <form
             action="/review"
             method="post"
@@ -209,7 +191,11 @@ const ReviewPage: React.FC = () => {
               <span>in</span>
               <ReviewDurationInput
                 name="duration"
-                suggestedDuration={review.suggestedReviewDuration}
+                suggestedDuration={
+                  guessedCorrectly
+                    ? review.suggestedReviewDuration
+                    : "10 minutes"
+                }
               />
             </div>
           </form>
