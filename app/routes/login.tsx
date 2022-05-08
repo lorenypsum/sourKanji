@@ -1,12 +1,13 @@
-import { ActionFunction, json, useActionData } from "remix";
+import { ActionFunction, json } from "@remix-run/node";
+import { useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 import authenticator from "~/utils/auth.server";
 
 type ActionData = { error?: string };
 
-export const action: ActionFunction = async (args) => {
+export const action: ActionFunction = async ({ request }) => {
   try {
-    await authenticator.authenticate("form", args.request, {
+    await authenticator.authenticate("form", request, {
       successRedirect: "/",
       throwOnError: true,
     });
@@ -17,7 +18,7 @@ export const action: ActionFunction = async (args) => {
   }
 };
 
-export default function Login() {
+const LoginPage: React.FC = () => {
   const actionData = useActionData<ActionData>();
 
   return (
@@ -48,4 +49,6 @@ export default function Login() {
       <a href="/register">Register account</a>
     </main>
   );
-}
+};
+
+export default LoginPage;

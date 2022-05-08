@@ -1,17 +1,19 @@
 import {
-  Links,
   LinksFunction,
-  LiveReload,
   LoaderFunction,
-  Meta,
   MetaFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
+import {
+  Links,
+  LiveReload,
+  Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  json,
-  redirect,
   useLoaderData,
-} from "remix";
+} from "@remix-run/react";
 import db from "./utils/db.server";
 import authenticator from "./utils/auth.server";
 
@@ -19,28 +21,29 @@ import authenticator from "./utils/auth.server";
 import tailwind from "./tailwind.css";
 
 type LoaderData = {
-  user: {
-    email: string | null;
-    image: string | null;
-  } | null;
-};
+  email: string | null;
+  image: string | null;
+} | null;
 
-export const loader: LoaderFunction = async (args) => {
-  const url = new URL(args.request.url);
+export const loader: LoaderFunction = async ({ request }) => {
+  // in production, we must ensure that we are using HTTPS, or else things break
+  const url = new URL(request.url);
   if (process.env.NODE_ENV === "production" && url.protocol === "http") {
     url.protocol = "https";
-    throw redirect(url.toString());
+    return redirect(url.toString());
   }
 
-  const userId = await authenticator.isAuthenticated(args.request);
-  if (!userId) return json<LoaderData>({ user: null });
+  // get the ID of the user making the request, or null if unauthenticated
+  const userId = await authenticator.isAuthenticated(request);
+  if (!userId) return json<LoaderData>(null);
 
+  // get the data associated with the user
   const user = await db.user.findUnique({
     where: { id: userId },
     select: { email: true, image: true },
     rejectOnNotFound: true,
   });
-  return json<LoaderData>({ user });
+  return json<LoaderData>(user);
 };
 
 export const links: LinksFunction = () => {
@@ -55,8 +58,9 @@ export const meta: MetaFunction = () => {
   };
 };
 
-export default function App() {
-  const loaderData = useLoaderData<LoaderData>();
+const Root: React.FC = () => {
+  const user = useLoaderData<LoaderData>();
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -66,7 +70,7 @@ export default function App() {
       <body className="h-full">
         <nav className="flex flex-row justify-between space-x-4 border-b px-4">
           <h1 className="text-xl font-bold">SourKanji</h1>
-          {loaderData.user && loaderData.user.email}
+          {user?.email}
         </nav>
         <Outlet />
         <ScrollRestoration />
@@ -75,4 +79,6 @@ export default function App() {
       </body>
     </html>
   );
-}
+};
+
+export default Root;

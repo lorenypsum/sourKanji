@@ -1,4 +1,5 @@
-import { json, LoaderFunction, useLoaderData } from "remix";
+import { json, LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import authenticator from "~/utils/auth.server";
 import db from "~/utils/db.server";
 
@@ -7,43 +8,39 @@ type LoaderData = {
   reviewCount: number;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const userId = await authenticator.isAuthenticated(args.request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
-
-  const learnCount = await db.kanji.aggregate({
-    where: { reviews: { none: { userId } } },
-    _count: true,
+  const learnCount = await db.kanji.count({
+    where: { reviews: { none: { userId: { equals: userId } } } },
   });
-  const reviewCount = await db.review.aggregate({
+  const reviewCount = await db.review.count({
     where: {
-      userId,
+      userId: { equals: userId },
       reviewableAt: { lte: new Date() },
-      reviewed: false,
+      reviewed: { equals: false },
     },
-    _count: true,
   });
-  return json<LoaderData>({
-    learnCount: learnCount._count,
-    reviewCount: reviewCount._count,
-  });
+  return json<LoaderData>({ learnCount, reviewCount });
 };
 
-export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+const IndexPage: React.FC = () => {
+  const { learnCount, reviewCount } = useLoaderData<LoaderData>();
 
   return (
     <main className="flex flex-col w-full h-full justify-center items-center space-y-4">
       <a href="/learn" className="border p-2 rounded-md text-center w-32">
-        Learn ({loaderData.learnCount})
+        Learn ({learnCount})
       </a>
       <a href="/review" className="border p-2 rounded-md text-center w-32">
-        Review ({loaderData.reviewCount})
+        Review ({reviewCount})
       </a>
       <a href="/report" className="border p-2 rounded-md text-center w-32">
         Report
       </a>
     </main>
   );
-}
+};
+
+export default IndexPage;
