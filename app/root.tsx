@@ -69,8 +69,10 @@ const Root: React.FC = () => {
       </head>
       <body className="h-full">
         <nav className="flex flex-row justify-between space-x-4 border-b px-4">
-          <h1 className="text-xl font-bold">SourKanji</h1>
-          {user?.email}
+          <a href="/" className="text-xl font-bold">
+            SourKanji
+          </a>
+          <a href="/profile">{user?.email}</a>
         </nav>
         <Outlet />
         <ScrollRestoration />
