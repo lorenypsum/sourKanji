@@ -47,10 +47,11 @@ const authenticator = new Authenticator<string>(sessionStorage);
  */
 const formStrategy = new FormStrategy(async ({ form, context }) => {
   const email = form.get("email");
-  if (typeof email !== "string") throw new AuthorizationError("Invalid email");
+  if (typeof email !== "string" || !email.match(/\S+@\S+.\S+/))
+    throw new AuthorizationError("Invalid email");
 
   const password = form.get("password");
-  if (typeof password !== "string")
+  if (typeof password !== "string" || password.length < 1)
     throw new AuthorizationError("Invalid password");
 
   // we make the convention that,
