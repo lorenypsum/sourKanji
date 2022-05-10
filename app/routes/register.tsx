@@ -53,6 +53,7 @@ const RegisterPage: React.FC = () => {
         </button>
       </form>
       {actionData?.error && <p>{actionData.error}</p>}
+      <a href="/login">Back</a>
     </main>
   );
 };
