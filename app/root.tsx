@@ -82,6 +82,48 @@ const Root: React.FC = () => {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        <nav className="flex flex-row justify-between space-x-4 px-4">
+        {[
+              {
+                src: "footerLogo.png",
+                alt: "Footer Logo",
+                href: "",
+                className:"flex h-20 w-40 justify-center",
+              },
+              {
+                src: "f.png",
+                alt: "Facebook",
+                href: "",
+                className:"flex h-16 w-32 justify-center",
+              },
+              {
+                src: "i.png",
+                alt: "Instagram",
+                href: "",
+                className:"flex h-16 w-32 justify-center",
+              },
+              {
+                src: "g.png",
+                alt: "Google",
+                href: "",
+                className:"flex h-16 w-32 justify-center",
+              },
+              {
+                src: "git.png",
+                alt: "GitHub",
+                href: "https://github.com/lorenypsum/sourKanji",
+                className:"flex h-16 w-32 justify-center",
+              }
+            ].map((img) => (
+              <a
+                key={img.href}
+                href={img.href}
+                className={img.className}
+              >
+                <img alt={img.alt} src={img.src} />
+              </a>
+            ))}
+        </nav>
       </body>
     </html>
   );
