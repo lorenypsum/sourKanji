@@ -69,8 +69,12 @@ const Root: React.FC = () => {
       </head>
       <body className="h-full">
         <nav className="flex flex-row justify-between space-x-4 border-b px-4">
-          <a href="/" className="text-xl font-bold">
-            SourKanji
+          <a
+            key="/"
+            href="/"
+            className="w-full max-w-[6rem] md:max-w-[8rem]"
+          >
+            <img alt="SourKanji" src="logo.png" />
           </a>
           <a href="/profile">{user?.email}</a>
         </nav>
