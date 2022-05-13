@@ -1,9 +1,14 @@
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { PassThrough } from "stream";
+import { ActionFunction } from "@remix-run/node";
+import { Form } from "@remix-run/react";
+import db from "~/utils/db.server";
 
-export const loader: LoaderFunction = async ({ params }) => {
-  return {};
+export const action: ActionFunction = async ({ request }) => {
+  let formData = await request.formData();
+  let values = Object.fromEntries(formData);
+
+  return db.report.put({
+    ...values
+  })
 };
 
 const SuggestionPage: React.FC = () => {
@@ -13,7 +18,7 @@ const SuggestionPage: React.FC = () => {
         Please select the type of report!<br></br>We are very pleased to get
         your feeback!
       </span>
-      <form
+      <Form
         action="/report"
         method="post"
         className="flex flex-col items-stretch space-y-2"
@@ -38,7 +43,7 @@ const SuggestionPage: React.FC = () => {
         <button type="submit" className="border p-2 rounded-md">
           Submit
         </button>
-      </form>
+      </Form>
 
       <a href="/" className="border p-2 rounded-md">
         Go back

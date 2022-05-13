@@ -40,3 +40,9 @@ model Review {
   reviewableAt DateTime
   reviewed     Boolean  @default(false)
 }
+
+model Report {
+
+  type         String @id @map("_id")
+  text         String 
+}
