@@ -9,13 +9,15 @@ export const action: ActionFunction = async ({ request }) => {
   
   if (typeof type !== "string") throw new Error("invalid type!");
   if (typeof text !== "string") throw new Error("invalid text!");
-
-  return db.report.create({
+  
+  db.report.create({
     data: {
       type: type,
       text: text
     }
   })
+
+  return redirect("/")
 };
 
 const SuggestionPage: React.FC = () => {
