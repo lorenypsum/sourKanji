@@ -42,7 +42,7 @@ model Review {
 }
 
 model Report {
-
-  type         String @id @map("_id")
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  type         String
   text         String 
 }
