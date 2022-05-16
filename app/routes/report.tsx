@@ -4,10 +4,17 @@ import db from "~/utils/db.server";
 
 export const action: ActionFunction = async ({ request }) => {
   let formData = await request.formData();
-  let values = Object.fromEntries(formData);
+  const type = formData.get("type");
+  const text = formData.get("text");
+  
+  if (typeof type !== "string") throw new Error("invalid type");
+  if (typeof text !== "string") throw new Error("invalid text");
 
-  return db.report.put({
-    ...values
+  return db.report.create({
+    data: {
+      type: type,
+      text: text
+    }
   })
 };
 
